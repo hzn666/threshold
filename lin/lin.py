@@ -99,6 +99,7 @@ def rtb(data, budget_para, config, train=True):
 
     for day_index, day in enumerate(data['day'].unique()):
         day_data = data[data['day'].isin([day])]
+        day_data = day_data[day_data['pctr'] >= 8.888440788723528e-05]
         day_budget = budget[day_index]
 
         bid_result = bid(day_data, day_budget, config)
