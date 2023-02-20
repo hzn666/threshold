@@ -27,13 +27,16 @@ def stack_frames(stacked_frames, frame, is_new_episode=False):
 
 
 def choose_init_base_bid(config, budget_para):
-    base_bid_path = os.path.join('../lin/result/ipinyou/{}/normal/test'.format(config['campaign_id']),
-                                 'test_bid_log.csv')
-    if not os.path.exists(base_bid_path):
-        raise FileNotFoundError('Run LIN first before train PAB')
-    data = pd.read_csv(base_bid_path)
-    base_bid = data[data['budget_para'] == budget_para].iloc[0]['base_bid']
-    avg_pctr = data[data['budget_para'] == budget_para].iloc[0]['average_pctr']
+    # base_bid_path = os.path.join('../lin/result/ipinyou/{}/normal/test'.format(config['campaign_id']),
+    #                              'test_bid_log.csv')
+    # if not os.path.exists(base_bid_path):
+    #     raise FileNotFoundError('Run LIN first before train PAB')
+    # data = pd.read_csv(base_bid_path)
+    # base_bid = data[data['budget_para'] == budget_para].iloc[0]['base_bid']
+    # avg_pctr = data[data['budget_para'] == budget_para].iloc[0]['average_pctr']
+
+    base_bid = 147
+    avg_pctr = 0.0008220358167794719
 
     return avg_pctr, base_bid
 
@@ -347,8 +350,8 @@ def main(budget_para, RL, config):
     if not os.path.exists(record_path):
         os.makedirs(record_path)
 
-    train_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], 'train.bid.lin.csv'))
-    test_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], 'test.bid.lin.csv'))
+    train_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], '12.csv'))
+    test_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], '13.csv'))
 
     header = ['clk', 'pctr', 'market_price', 'day']
 
@@ -417,13 +420,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default='../data/ipinyou')
     parser.add_argument('--campaign_id', type=str, default='1458')
-    parser.add_argument('--result_path', type=str, default='new-reward')
+    parser.add_argument('--result_path', type=str, default='result')
     parser.add_argument('--time_fraction', type=int, default=96)
     parser.add_argument('--feature_num', type=int, default=24)
     parser.add_argument('--action_num', type=int, default=2)
     parser.add_argument('--action_parameters_num', type=int, default=2)
     parser.add_argument('--budget_para', nargs='+', default=[2, 4, 8, 16])
-    parser.add_argument('--train_epochs', type=int, default=1500)
+    parser.add_argument('--train_epochs', type=int, default=1000)
     parser.add_argument('--memory_size', type=int, default=100000)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--save_bid_action', type=bool, default=False)

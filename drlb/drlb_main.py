@@ -395,7 +395,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--save_bid_action', type=bool, default=False)
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--seed', type=int, default='100')
+    parser.add_argument('--seed', type=int, default='10')
 
     args = parser.parse_args()
     config = vars(args)

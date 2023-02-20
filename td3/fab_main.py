@@ -294,8 +294,8 @@ def main(budget_para, RL, config):
     if not os.path.exists(record_path):
         os.makedirs(record_path)
 
-    train_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], 'train.bid.lin.csv'))
-    test_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], 'test.bid.lin.csv'))
+    train_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], '12.csv'))
+    test_data = pd.read_csv(os.path.join(config['data_path'], config['campaign_id'], '13.csv'))
 
     header = ['clk', 'pctr', 'market_price', 'day']
 
@@ -369,7 +369,7 @@ if __name__ == '__main__':
     parser.add_argument('--feature_num', type=int, default=4)
     parser.add_argument('--action_num', type=int, default=1)
     parser.add_argument('--budget_para', nargs='+', default=[2, 4, 8, 16])
-    parser.add_argument('--train_epochs', type=int, default=1500)
+    parser.add_argument('--train_epochs', type=int, default=1000)
     parser.add_argument('--memory_size', type=int, default=100000)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--save_bid_action', type=bool, default=False)
