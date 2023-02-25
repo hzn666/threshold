@@ -4,6 +4,13 @@ import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
 
+def init_layer_uniform(layer: torch.nn.Linear, init_w: float = 3e-3) -> torch.nn.Linear:
+    """Init uniform parameters on the single layer."""
+    layer.weight.data.uniform_(-init_w, init_w)
+    layer.bias.data.uniform_(-init_w, init_w)
+    return layer
+
+
 def compute_advantage(gamma, lmbda, td_delta):
     td_delta = td_delta.detach().numpy()
     advantage_list = []
@@ -18,20 +25,14 @@ def compute_advantage(gamma, lmbda, td_delta):
 class PolicyNetContinuous(torch.nn.Module):
     def __init__(self, state_dim, action_dim):
         super(PolicyNetContinuous, self).__init__()
-        self.fc1 = torch.nn.Linear(state_dim, 1024)
-        self.fc2 = torch.nn.Linear(1024, 512)
-        self.fc3 = torch.nn.Linear(512, 256)
-        self.fc4 = torch.nn.Linear(256, 128)
-        self.fc5 = torch.nn.Linear(128, 64)
+        self.fc1 = torch.nn.Linear(state_dim, 128)
+        self.fc2 = torch.nn.Linear(128, 64)
         self.fc_mu = torch.nn.Linear(64, action_dim)
         self.fc_std = torch.nn.Linear(64, action_dim)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
         mu = 0.99 * torch.tanh(self.fc_mu(x))
         std = F.softplus(self.fc_std(x))
         return mu, std
@@ -40,20 +41,14 @@ class PolicyNetContinuous(torch.nn.Module):
 class ValueNet(torch.nn.Module):
     def __init__(self, state_dim):
         super(ValueNet, self).__init__()
-        self.fc1 = torch.nn.Linear(state_dim, 1024)
-        self.fc2 = torch.nn.Linear(1024, 512)
-        self.fc3 = torch.nn.Linear(512, 256)
-        self.fc4 = torch.nn.Linear(256, 128)
-        self.fc5 = torch.nn.Linear(128, 64)
-        self.fc6 = torch.nn.Linear(64, 1)
+        self.fc1 = torch.nn.Linear(state_dim, 128)
+        self.fc2 = torch.nn.Linear(128, 64)
+        self.fc3 = torch.nn.Linear(64, 1)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
-        return self.fc6(x)
+        return self.fc3(x)
 
 
 class PPOContinuous:

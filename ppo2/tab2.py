@@ -2,7 +2,7 @@ import argparse
 import os
 import time
 from collections import deque
-from ppo import *
+from ppo2 import *
 import numpy as np
 import pandas as pd
 
@@ -122,7 +122,6 @@ def rtb(data, init_state, budget_para, RL, config, train=True):
 
     stacked_frames = deque([np.zeros(8) for _ in range(4)], maxlen=4)
 
-    transition_dict = {'states': [], 'actions': [], 'next_states': [], 'rewards': [], 'dones': []}
     init_threshold = {
         2: 0.0003140721528325,
         4: 0.0005973504739813,
@@ -138,7 +137,7 @@ def rtb(data, init_state, budget_para, RL, config, train=True):
         else:
             state = next_state
 
-        action = RL.take_action(state)
+        action = RL.select_action(state)
         threshold = threshold * (1 + action[0])
         # day_action.append(action[0])
         day_action.append(threshold)
@@ -182,18 +181,11 @@ def rtb(data, init_state, budget_para, RL, config, train=True):
         ]
         next_state, stacked_frames = stack_frames(stacked_frames, next_frame)
 
-        if train and not done:
-            transition_dict['states'].append(state)
-            transition_dict['actions'].append(action)
-            transition_dict['next_states'].append(next_state)
-            transition_dict['rewards'].append(slot_reward)
-            transition_dict['dones'].append(done)
-
         if done:
             break
 
     if train:
-        actor_loss, critic_loss = RL.update(transition_dict)
+        actor_loss, critic_loss = RL.update_model(next_state)
         global actor_loss_cnt
         actor_loss_cnt += 1
         RL.writer.add_scalar('actor_loss', actor_loss, actor_loss_cnt)
@@ -332,12 +324,14 @@ if __name__ == '__main__':
     parser.add_argument('--action_num', type=int, default=1)
     parser.add_argument('--actor_lr', type=float, default=1e-3)
     parser.add_argument('--critic_lr', type=float, default=1e-3)
-    parser.add_argument('--lmbda', type=float, default=0.99)
+    parser.add_argument('--batch_size', type=int, default=12)
+    parser.add_argument('--lmbda', type=float, default=0.9)
     parser.add_argument('--eps', type=float, default=0.2)
     parser.add_argument('--gamma', type=float, default=1)
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--budget_para', nargs='+', default=[16])
-    parser.add_argument('--train_epochs', type=int, default=1000)
+    parser.add_argument('--entropy_weight', type=float, default=0.005)
+    parser.add_argument('--budget_para', nargs='+', default=[2])
+    parser.add_argument('--train_epochs', type=int, default=200)
     parser.add_argument('--save_bid_action', type=bool, default=False)
     parser.add_argument('--reward_type', type=str, default='clk', help='op, nop_2.0, clk')
     parser.add_argument('--device', type=str, default='cuda')
@@ -360,15 +354,17 @@ if __name__ == '__main__':
     test_reward_cnt = 0
 
     for i in budget_para_list:
-        RL = PPOContinuous(
+        RL = PPOAgent(
             config['feature_num'],
             config['action_num'],
             config['actor_lr'],
             config['critic_lr'],
+            config['batch_size'],
+            config['gamma'],
             config['lmbda'],
             config['eps'],
-            config['gamma'],
             config['epochs'],
+            config['entropy_weight'],
             config['campaign_id'],
             i,
             config['seed'],
