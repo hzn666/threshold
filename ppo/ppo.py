@@ -33,7 +33,7 @@ class PolicyNetContinuous(torch.nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        mu = 0.99 * torch.tanh(self.fc_mu(x))
+        mu = torch.tanh(self.fc_mu(x))
         std = F.softplus(self.fc_std(x))
         return mu, std
 
@@ -88,7 +88,7 @@ class PPOContinuous:
         state = torch.tensor(np.array(state), dtype=torch.float).to(self.device)
         mu, sigma = self.actor(state)
         action_dist = torch.distributions.Normal(mu, sigma)
-        action = action_dist.sample().tanh()
+        action = action_dist.sample()
         return [action.item()]
 
     def update(self, transition_dict):

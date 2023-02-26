@@ -37,7 +37,7 @@ def reward_func(reward_type, result):
     if reward_type == 'pctr':
         return result['win_pctr']
     else:
-        return result['win_clks'] / 1000
+        return result['win_clks']
 
 
 def bid(data, budget, **cfg):
@@ -330,13 +330,13 @@ if __name__ == '__main__':
     parser.add_argument('--time_fraction', type=int, default=96)
     parser.add_argument('--feature_num', type=int, default=32)
     parser.add_argument('--action_num', type=int, default=1)
-    parser.add_argument('--actor_lr', type=float, default=1e-3)
-    parser.add_argument('--critic_lr', type=float, default=1e-3)
-    parser.add_argument('--lmbda', type=float, default=0.99)
+    parser.add_argument('--actor_lr', type=float, default=5e-4)
+    parser.add_argument('--critic_lr', type=float, default=5e-3)
+    parser.add_argument('--lmbda', type=float, default=0.9)
     parser.add_argument('--eps', type=float, default=0.2)
     parser.add_argument('--gamma', type=float, default=1)
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--budget_para', nargs='+', default=[16])
+    parser.add_argument('--budget_para', nargs='+', default=[2])
     parser.add_argument('--train_epochs', type=int, default=1000)
     parser.add_argument('--save_bid_action', type=bool, default=False)
     parser.add_argument('--reward_type', type=str, default='clk', help='op, nop_2.0, clk')
